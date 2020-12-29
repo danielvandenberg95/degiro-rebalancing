@@ -1,0 +1,3 @@
+node_modules
+storage/*
+test/env/degiro_login.env

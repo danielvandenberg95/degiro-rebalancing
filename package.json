@@ -1,0 +1,32 @@
+{
+  "name": "degiro",
+  "version": "1.0.0",
+  "description": "Rebalancing calculator",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "run": "node --trace-uncaught src/index.js",
+    "test": "mocha --require test/env/degiro_login.env",
+    "lint": "eslint 'src/**/*.js' 'test/**/*.js'",
+    "lint-fix": "eslint --fix 'src/**/*.js' 'test/**/*.js'",
+    "doc": "jsdoc -r src -d doc -c jsdoc.json"
+  },
+  "author": "Daniël van den Berg",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "degiro-api": "github:icastillejogomez/degiro-api",
+    "node-localstorage": "^2.1.6",
+    "pad": "^3.2.0"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.12.1",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-private-methods": "^7.12.1",
+    "eslint": "^7.16.0",
+    "jsdoc": "^3.6.6",
+    "jsdoc-export-default-interop": "^0.3.1",
+    "jsdox": "^0.4.10",
+    "mocha": "^8.2.1"
+  }
+}

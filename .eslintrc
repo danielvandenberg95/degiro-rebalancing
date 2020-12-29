@@ -1,0 +1,43 @@
+{
+	"root": true,
+	"extends": "eslint:recommended",
+	"parser": "@babel/eslint-parser",
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 8,
+		"babelOptions": {
+			"configFile": "./babelrc"
+		}
+	},
+	"rules": {
+		"indent": [
+			"error",
+			"tab"
+		],
+		"sort-imports": [
+			"error",
+			{
+				"ignoreCase": true
+			}
+		],
+		"require-jsdoc": [
+			"error",
+			{
+				"require": {
+					"FunctionDeclaration": true,
+					"MethodDefinition": false,
+					"ClassDeclaration": true,
+					"ArrowFunctionExpression": false,
+					"FunctionExpression": false
+				}
+			}
+		],
+		"no-console": "off"
+	},
+	"env": {
+		"browser": false,
+		"node": true,
+		"es6": true,
+		"mocha": true
+	}
+}
