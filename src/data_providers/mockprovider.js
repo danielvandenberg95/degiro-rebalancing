@@ -2,7 +2,7 @@
  * DataProvider that stores data in-memory. Useful for testing.
  * @extends DataProvider
  */
-export default class MockProvider {
+class MockProvider {
 	constructor(){
 		this.data = {};
 	}
@@ -29,3 +29,4 @@ export default class MockProvider {
 		this.data[key] = value;
 	}
 }
+export default MockProvider;

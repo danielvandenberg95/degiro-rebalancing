@@ -9,7 +9,7 @@
     "test": "mocha --require test/env/degiro_login.env",
     "lint": "eslint 'src/**/*.js' 'test/**/*.js'",
     "lint-fix": "eslint --fix 'src/**/*.js' 'test/**/*.js'",
-    "doc": "jsdoc -r src -d docs -c jsdoc.json"
+    "doc": "jsdoc -d docs -c jsdoc.json"
   },
   "author": "Daniël van den Berg",
   "license": "ISC",
@@ -23,6 +23,7 @@
     "@babel/eslint-parser": "^7.12.1",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/plugin-proposal-private-methods": "^7.12.1",
+    "better-docs": "^2.3.2",
     "eslint": "^7.16.0",
     "jsdoc": "^3.6.6",
     "jsdoc-export-default-interop": "^0.3.1",

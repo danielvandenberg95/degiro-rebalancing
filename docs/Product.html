@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> data_providers/data_provider.js</title>
+  <title> Product</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -79,76 +77,156 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Source</p>
-                    <h1>data_providers/data_provider.js</h1>
+                    <p>Class</p>
+                    <h1>Product</h1>
                 </header>
                 
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @file Provides an interface for DataProviders.
- * @author Daniël van den Berg
- */
+        <h2><span class="attribs"><span class="type-signature"></span></span>Product<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Product class</p></div>
+        
+    
+</header>
 
-/**
- * Provides functions to get (and optionally set) data.
- * @abstract
- * @interface DataProvider
- */
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
 
-/**
- * Opens the DataProvider, allowing to get and set data.
- *
- * @async
- * @abstract
- * @function DataProvider#open
- */
 
-/**
- * Closes the DataProvider neatly. Used for freeing up system resources.
- *
- * @async
- * @abstract
- * @function DataProvider#close
- */
+    
+    <h4 class="name" id="Product">
+        <a class="href-link" href="#Product">#</a>
+        
+        <span class="code-name">
+            
+                new Product<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
 
-/**
- * Returns data from the given key.
- *
- * @async
- * @abstract
- * @function DataProvider#getData
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
+    
+    
 
-/**
- * Returns data from the given key. This data is retrieved securely.
- * To be used e.g. when requesting a password.
- *
- * @async
- * @abstract
- * @function DataProvider#getDataSecure
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
 
-/**
- * Sets the data at the given key.
- * {@link DataProvider#getData} will return this data, if called with the same key afterwards.
- *
- * @abstract
- * @function DataProvider#setData
- * @param {string} key The key to store the data at.
- * @param {string} value The value to store at the given key.
- */
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="Product.js.html" class="button">View Source</a>
+            <span>
+                <a href="Product.js.html">Product.js</a>, <a href="Product.js.html#line4">line 4</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

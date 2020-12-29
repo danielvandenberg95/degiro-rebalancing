@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> data_providers/data_provider.js</title>
+  <title> portfolio.js</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -80,7 +80,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>data_providers/data_provider.js</h1>
+                    <h1>portfolio.js</h1>
                 </header>
                 
 
@@ -90,62 +90,33 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * @file Provides an interface for DataProviders.
- * @author Daniël van den Berg
+ * Class representing a portfolio on DEGIRO.
  */
+class Portfolio{
+	constructor(deGiroData){
+		this.data = deGiroData;
+	}
 
-/**
- * Provides functions to get (and optionally set) data.
- * @abstract
- * @interface DataProvider
- */
+	/**
+	 * Returns the total value of the portfolio. This excludes available balance.
+	 * @returns {number} The value of the portfolio.
+	 */
+	getTotalValue() {
+		return this.data
+			.filter(e => e.entry.name != "EUR" &amp;&amp; e.entry.isin != "LU1959429272"/*balance*/)
+			.reduce((prev, cur) => prev + cur.value, 0) || 0;
+	}
 
-/**
- * Opens the DataProvider, allowing to get and set data.
- *
- * @async
- * @abstract
- * @function DataProvider#open
- */
-
-/**
- * Closes the DataProvider neatly. Used for freeing up system resources.
- *
- * @async
- * @abstract
- * @function DataProvider#close
- */
-
-/**
- * Returns data from the given key.
- *
- * @async
- * @abstract
- * @function DataProvider#getData
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
-
-/**
- * Returns data from the given key. This data is retrieved securely.
- * To be used e.g. when requesting a password.
- *
- * @async
- * @abstract
- * @function DataProvider#getDataSecure
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
-
-/**
- * Sets the data at the given key.
- * {@link DataProvider#getData} will return this data, if called with the same key afterwards.
- *
- * @abstract
- * @function DataProvider#setData
- * @param {string} key The key to store the data at.
- * @param {string} value The value to store at the given key.
- */
+	/**
+	 * Searches for a position in the portfolio by the given ID.
+	 * @param {number} id 
+	 * @returns {object} Position.
+	 */
+	findByID(id){
+		return this.data.find(pf => pf.id === id);
+	}
+}
+export default Portfolio;
 </code></pre>
         </article>
     </section>

@@ -2,7 +2,7 @@
  * DataProvider for environment values.
  * @extends DataProvider
  */
-export default class Env {
+class Env {
 	constructor() {
 		this.isOpen = false;
 	}
@@ -26,3 +26,4 @@ export default class Env {
 		return this.getData(key);
 	}
 }
+export default Env;

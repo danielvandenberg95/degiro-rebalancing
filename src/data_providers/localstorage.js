@@ -1,11 +1,11 @@
-import 'dataprovider';
+import './data_provider.js';
 import { LocalStorage as LS } from 'node-localstorage';
 
 /**
  * DataProvider that acts as local storage. Stores data on disk.
  * @extends DataProvider
  */
-export default class LocalStorage {
+class LocalStorage {
 	async open() {
 		this.localStorage = new LS('./storage');
 	}
@@ -28,3 +28,4 @@ export default class LocalStorage {
 		this.localStorage.setItem(key, value);
 	}
 }
+export default LocalStorage;

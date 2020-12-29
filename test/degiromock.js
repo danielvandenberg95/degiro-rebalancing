@@ -1,7 +1,9 @@
-export default class DeGiroMock{
-	constructor(dataProviderLogin){
-		this.dataProviderLogin = dataProviderLogin;
-	}
+import DeGiro from "../src/degiro";
+
+/**
+ * Provides a mock interface for DeGiro. This interface should implement all DeGiro calls. To be used for testing.
+ */
+export default class DeGiroMock extends DeGiro{
 
 	async open(){
 		await this.dataProviderLogin.open();

@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> data_providers/data_provider.js</title>
+  <title> Numbers.js</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -80,7 +80,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>data_providers/data_provider.js</h1>
+                    <h1>Numbers.js</h1>
                 </header>
                 
 
@@ -89,63 +89,27 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @file Provides an interface for DataProviders.
- * @author Daniël van den Berg
- */
+            <pre class="prettyprint source linenums"><code>import pad from 'pad';
 
 /**
- * Provides functions to get (and optionally set) data.
- * @abstract
- * @interface DataProvider
+ * Converts a number to formatted euro value. Always 8 positions big.
+ * (So 5 numbers (or spaces), period, two numbers.)
+ * @param {number} value 
+ * @returns {string} Format €  xxxxxx.xx
  */
+export function toEur(value) {
+	return `€${pad(8, Number(value).toFixed(2))}`;
+}
 
 /**
- * Opens the DataProvider, allowing to get and set data.
- *
- * @async
- * @abstract
- * @function DataProvider#open
+ * Converts a number to formatted percentage value. Always 6 positions big.
+ * (So 3 numbers (or spaces), period, two numbers.)
+ * @param {number} value 
+ * @returns {string} Format 100.00%
  */
-
-/**
- * Closes the DataProvider neatly. Used for freeing up system resources.
- *
- * @async
- * @abstract
- * @function DataProvider#close
- */
-
-/**
- * Returns data from the given key.
- *
- * @async
- * @abstract
- * @function DataProvider#getData
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
-
-/**
- * Returns data from the given key. This data is retrieved securely.
- * To be used e.g. when requesting a password.
- *
- * @async
- * @abstract
- * @function DataProvider#getDataSecure
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
-
-/**
- * Sets the data at the given key.
- * {@link DataProvider#getData} will return this data, if called with the same key afterwards.
- *
- * @abstract
- * @function DataProvider#setData
- * @param {string} key The key to store the data at.
- * @param {string} value The value to store at the given key.
- */
+export function toPercentage(value){
+	return `${pad(6, Number(value).toFixed(2))}%`;
+}
 </code></pre>
         </article>
     </section>

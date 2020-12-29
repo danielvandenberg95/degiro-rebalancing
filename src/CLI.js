@@ -1,26 +1,22 @@
 import colors from 'colors/safe.js';
 import Console from 'console';
-import pad from 'pad';
-// hideconstructor Needed as otherwise jsdoc generates an empty constructor. TODO: Figure out why / fix.
 
-/**
- * CLI provides a mean for interacting with your application through CLI.
- * @hideconstructor
- *
- */
-export default class CLI {
-
-	headerLines = [];
-	subMenus = [];
+/** CLI class. Gives an CLI interface for easy user interaction. */
+class CLI {
 	isExiting = false;
 
 	/**
-	 * Creates a CLI.
-	 * @constructor CLI
-	 * @param {DataProvider} dataProvider The dataprovider to use for user interaction.
+	 * Constructor.
+	 * @param {string} title Title
+	 * @param {function} onLoad Function to be called on load. Add components in here if they need to be re-rendered.
 	 */
-	constructor(dataProvider) {
-		this.dataProvider = dataProvider;
+	constructor(title, onLoad) {
+		this.title = title;
+		this.onLoad = onLoad;
+		this.clear();
+		if (title) {
+			this.addHeaderLine(title);
+		}
 		this.addFunction("Exit", () => { this.isExiting = true; });
 	}
 
@@ -38,11 +34,13 @@ export default class CLI {
 	 * Adds a submenu.
 	 * @param {string} title The title of the submenu. Shown when selecting and on top as a header line.
 	 */
-	addSubMenu(title) {
-		let subConsole = new CLI(this.dataProvider);
-		this.addFunction(title, () => { return subConsole.loop(); });
+	addSubMenu(title, onLoad) {
+		let subConsole = new CLI(title, onLoad);
+		this.addFunction(title, () => {
+			return subConsole.#loop();
+		});
 		subConsole.addHeaderLine(title);
-		return subConsole;
+		return this;
 	}
 
 	/**
@@ -61,6 +59,64 @@ export default class CLI {
 	}
 
 	/**
+	 * Requests user input.
+	 * @param {string} comment Comment to add before asking for user input.
+	 */
+	async askUserInput(comment) {
+		let lastKey;
+		let sequence = ``;
+		process.stdout.write(comment);
+		process.stdout.write("\r\n");
+		while (
+			lastKey = await this.#getKey(),
+			lastKey.name != `return`
+		) {
+
+			switch (lastKey.name) {
+				case `backspace`:
+					sequence = sequence.split(0, -1);
+					process.stdout.moveCursor(-1, 0);
+					process.stdout.write(" ");
+					process.stdout.moveCursor(-1, 0);
+					break;
+				default:
+					if (lastKey.sequence.length == 1) {
+						sequence += lastKey.sequence;
+						process.stdout.write(lastKey.sequence);
+					}
+			}
+		}
+		process.stdout.write('\r\n');
+		return sequence;
+	}
+
+	/**
+	 * Let the user chose from the given options.
+	 * @param {string} title Title to display above options
+	 * @param {any[]} options Array of options
+	 * @param {function(any):string} formatter Formatter for options
+	 */
+	async askUserSelection(title, options, formatter){
+		let selectCLI = new CLI(title);
+		return await new Promise((resolve) => {
+			options.forEach((option, index) => {
+				selectCLI.addFunction(`${formatter(option)}`, async () => {
+					selectCLI.setExiting();
+					resolve(options[index]);
+				});
+			});
+			selectCLI.run();
+		});
+	}
+
+	/**
+	 * Tells the CLI that it should exit as soon as possible.
+	 */
+	setExiting(){
+		this.isExiting = true;
+	}
+
+	/**
 	 * Private render function.
 	 * Renders the current "screen" to the console.
 	 * 
@@ -68,53 +124,130 @@ export default class CLI {
 	 * @async
 	 */
 	async #render() {
+		process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+		process.stdout.write("\x1B[2J");
 		Console.clear();
+		let lines = 0
 		for (let e of this.headerLines) {
 			if (typeof (e) === "function") {
 				e = await e();
 			}
 			if (Array.isArray(e)) {
+				lines += e.length;
 				e.forEach(e => Console.log(e));
 			}
 			else {
+				lines++;
 				Console.log(e);
 			}
 		}
+		let indexes = [];
 		this.subMenus.forEach((obj, index) => {
-			Console.log(`${pad(2, index + 1)} - ${obj.title}`);
+			indexes.push(lines);
+			lines++;
+			Console.log(`${index === 0 ? `→` : ` `} ${obj.title}`);
+		});
+		return indexes;
+	}
+
+	/**
+	 * Removes any header lines or functions.
+	 */
+	clear() {
+		this.headerLines = [];
+		this.subMenus = [];
+	}
+
+	/**
+	 * Main loop of the CLI. Call this to start the interface. Initializes tty.
+	 */
+	async run() {
+		let wasRaw = process.stdin.isRaw;
+		process.stdin.setRawMode(true);
+		await this.#loop();
+		process.stdin.setRawMode(wasRaw);
+	}
+
+	/**
+	 * Returns a keypress.
+	 * @returns {Object} The key pressed.
+	 */
+	async #getKey() {
+		process.stdin.resume();
+		process.stdin.setEncoding('utf8');
+		return new Promise((resolve) => {
+			process.stdin.once('keypress', (str, key) => {
+				process.stdin.pause();
+				resolve(key);
+			});
 		});
 	}
 
 	/**
-	 * Main loop of CLI. Call this to start the interface.
+	 * Main loop of CLI. 
 	 * 
 	 * @async
 	 */
-	async loop() {
+	async #loop() {
 		this.isExiting = false;
 		while (!this.isExiting) {
-			await this.#render();
-			let option = 1 * await this.dataProvider.getData("Option");
-			let func = this.subMenus[option - 1]?.func;
+			if (this.onLoad) {
+				this.clear();
+				this.addHeaderLine(this.title);
+				this.addFunction("Exit", () => { this.isExiting = true; });
+				this.onLoad();
+			}
+			let selected = 0;
+
+			let key;
+			let lines = await this.#render();
+			do {
+				key = await this.#getKey();
+				let selectedNew = selected;
+				switch (key.name) {
+					case `up`:
+						selectedNew = Math.max(0, selected - 1);
+						break;
+					case `down`:
+						selectedNew = Math.min(this.subMenus.length - 1, selected + 1);
+						break;
+				}
+				if (selectedNew != selected) {
+					process.stdout.cork();
+					process.stdout.cursorTo(0, lines[selected]);
+					process.stdout.write(` `);
+					selected = selectedNew;
+					process.stdout.cursorTo(0, lines[selected]);
+					process.stdout.write(`→`);
+					process.stdout.cursorTo(0, lines[lines.length - 1] + 1);
+					process.stdout.uncork();
+				}
+			} while (key.name != `return`);
+			let func = this.subMenus[selected]?.func;
+			let hasOutput = false;
 			if (func) {
 				Console.clear();
-				Console.log(colors.red.bold(this.subMenus[option - 1].title));
-				let ret = await func();
+				Console.log(colors.red.bold(this.subMenus[selected].title));
+				let ret = await func.call(this);
 				if (ret) {
 					if (Array.isArray(ret)) {
+						hasOutput = ret.length > 0;
 						ret.forEach(e => Console.log(e));
 					}
 					else {
+						hasOutput = !!ret;
 						Console.log(ret);
 					}
 				}
 			} else {
 				Console.log("Unknown option.");
 			}
-			if (!this.isExiting) {
-				await this.dataProvider.getData("Press enter key to continue.");
+			if (!this.isExiting && hasOutput) {
+				Console.log("Press enter key to continue.");
+				// eslint-disable-next-line no-empty
+				while ((await this.#getKey()).name != `return`) { }
 			}
 		}
-
 	}
 }
+export default CLI;

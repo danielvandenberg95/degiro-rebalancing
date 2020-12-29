@@ -4,7 +4,7 @@ import readline from 'readline';
  * DataProvider that provides data from command line.
  * @extends DataProvider
  */
-export default class StdIn {
+class StdIn {
 	constructor() {
 		this.isSecure = false;
 		this.rl = undefined;
@@ -25,7 +25,7 @@ export default class StdIn {
 	}
 
 	async close(){
-		this.rl.close();
+		this.rl?.close();
 		this.rl = undefined;
 	}
 
@@ -52,3 +52,4 @@ export default class StdIn {
 		return result;
 	}
 }
+export default StdIn;

@@ -1,15 +1,25 @@
 import colors from 'colors/safe.js';
 import DeGiroTmp from 'degiro-api';
+import Portfolio from './portfolio.js';
 import { PORTFOLIO_POSITIONS_TYPE_ENUM } from 'degiro-api/dist/enums/index.js';
+import { toEur } from './Numbers.js';
 
 const DeGiroAPI = DeGiroTmp.default;
 
-export default class DeGiro {
+/**
+ * Class for interacting with DeGiro.
+ */
+class DeGiro {
 	constructor(dataProviderLogin, dataProviderLoginCache) {
 		this.dataProviderLogin = dataProviderLogin;
 		this.dataProviderLoginCache = dataProviderLoginCache;
 	}
 
+	/**
+	 * Call to open both data providers, and establish a connection to degiro.
+	 * 
+	 * @async
+	 */
 	async open() {
 		await this.dataProviderLogin.open();
 		await this.dataProviderLoginCache.open();
@@ -37,18 +47,38 @@ export default class DeGiro {
 		this.dataProviderLoginCache.setData("degiro.logincache", this.degiro.getJSESSIONID());
 	}
 
+	/** 
+	 * Closes the connection to degiro and closes the dataproviders, freeing up system resources.
+	*/
 	close() {
+		this.degiro.logout();
 		this.dataProviderLogin.close();
+		this.dataProviderLoginCache.close();
 	}
 
+	/**
+	 * Returns the current available balance.
+	 * @async
+	 * @returns {number} The current balance.
+	 */
 	async getBalance() {
 		return (await this.degiro.getCashFunds()).find(e => e.currencyCode === 'EUR').value;
 	}
 
+	/**
+	 * Returns the current balance as a formatted string.
+	 * @async
+	 * @returns {string} <blue>Balance:</blue> €xxxx.xx
+	 */
 	async getBalanceString(){
-		return `${colors.blue(`Balance:`)} €${Number(await this.getBalance()).toFixed(2)}`;
+		return `${colors.blue(`Balance:`)} ${toEur(await this.getBalance())}`;
 	}
 
+	/**
+	 * Returns the current portfolio.
+	 * @async
+	 * @returns {Promise<Portfolio>} The portfolio.
+	 */
 	async getPortfolio() {
 		let portfolio = await this.degiro.getPortfolio({
 			type: PORTFOLIO_POSITIONS_TYPE_ENUM.ALL,
@@ -62,18 +92,26 @@ export default class DeGiro {
 				...e
 			}
 		});
-		return portfolio;
+		return new Portfolio(portfolio);
 	}
 
+	/**
+	 * Fetches the information for the products by the given ID.
+	 * @param {number[]} ids The IDs of the products to get the information from.
+	 * @async
+	 * @returns product information.
+	 */
 	async getProductsByIds(ids){
 		return this.degiro.getProductsByIds(ids);
 	}
-
-	isLoggedIn() {
-		return this.degiro.isLogin();
-	}
-
+	
+	/**
+	 * Searches products in DEGIRO.
+	 * @param {string} searchOptions The search string.
+	 * @returns The products with the given search string.
+	 */
 	async searchProduct(searchOptions){
 		return await this.degiro.searchProduct(searchOptions) || [];
 	}
 }
+export default DeGiro;

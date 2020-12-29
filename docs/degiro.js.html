@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> data_providers/data_provider.js</title>
+  <title> degiro.js</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -80,7 +80,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>data_providers/data_provider.js</h1>
+                    <h1>degiro.js</h1>
                 </header>
                 
 
@@ -89,63 +89,123 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @file Provides an interface for DataProviders.
- * @author Daniël van den Berg
- */
+            <pre class="prettyprint source linenums"><code>import colors from 'colors/safe.js';
+import DeGiroTmp from 'degiro-api';
+import Portfolio from './portfolio.js';
+import { PORTFOLIO_POSITIONS_TYPE_ENUM } from 'degiro-api/dist/enums/index.js';
+import { toEur } from './Numbers.js';
+
+const DeGiroAPI = DeGiroTmp.default;
 
 /**
- * Provides functions to get (and optionally set) data.
- * @abstract
- * @interface DataProvider
+ * Class for interacting with DeGiro.
  */
+class DeGiro {
+	constructor(dataProviderLogin, dataProviderLoginCache) {
+		this.dataProviderLogin = dataProviderLogin;
+		this.dataProviderLoginCache = dataProviderLoginCache;
+	}
 
-/**
- * Opens the DataProvider, allowing to get and set data.
- *
- * @async
- * @abstract
- * @function DataProvider#open
- */
+	/**
+	 * Call to open both data providers, and establish a connection to degiro.
+	 * 
+	 * @async
+	 */
+	async open() {
+		await this.dataProviderLogin.open();
+		await this.dataProviderLoginCache.open();
+		if (await this.dataProviderLoginCache.getData("degiro.logincache")) {
+			this.degiro = new DeGiroAPI({
+				jsessionId: await this.dataProviderLoginCache.getData("degiro.logincache")
+			});
+			await this.degiro.login().catch((e) => { console.log(`Invalid login: ${e}`) });
+			if (this.degiro.isLogin()) {
+				return;
+			}
+		}
 
-/**
- * Closes the DataProvider neatly. Used for freeing up system resources.
- *
- * @async
- * @abstract
- * @function DataProvider#close
- */
+		console.log("Session expired (or non-existing yet), re-login.");
 
-/**
- * Returns data from the given key.
- *
- * @async
- * @abstract
- * @function DataProvider#getData
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
+		this.degiro = new DeGiroAPI({
+			username: await this.dataProviderLogin.getData("Username"),
+			pwd: await this.dataProviderLogin.getDataSecure("Password"),
+			oneTimePassword: await this.dataProviderLogin.getData("OneTimePassword")
+		});
+		await this.degiro.login();
+		if (!this.degiro.isLogin()) {
+			throw "Could not login.";
+		}
+		this.dataProviderLoginCache.setData("degiro.logincache", this.degiro.getJSESSIONID());
+	}
 
-/**
- * Returns data from the given key. This data is retrieved securely.
- * To be used e.g. when requesting a password.
- *
- * @async
- * @abstract
- * @function DataProvider#getDataSecure
- * @param {string} key The key associated with the data to get.
- * @returns {string} The value associated with the given key.
- */
+	/** 
+	 * Closes the connection to degiro and closes the dataproviders, freeing up system resources.
+	*/
+	close() {
+		this.degiro.logout();
+		this.dataProviderLogin.close();
+		this.dataProviderLoginCache.close();
+	}
 
-/**
- * Sets the data at the given key.
- * {@link DataProvider#getData} will return this data, if called with the same key afterwards.
- *
- * @abstract
- * @function DataProvider#setData
- * @param {string} key The key to store the data at.
- * @param {string} value The value to store at the given key.
- */
+	/**
+	 * Returns the current available balance.
+	 * @async
+	 * @returns {number} The current balance.
+	 */
+	async getBalance() {
+		return (await this.degiro.getCashFunds()).find(e => e.currencyCode === 'EUR').value;
+	}
+
+	/**
+	 * Returns the current balance as a formatted string.
+	 * @async
+	 * @returns {string} &lt;blue>Balance:&lt;/blue> €xxxx.xx
+	 */
+	async getBalanceString(){
+		return `${colors.blue(`Balance:`)} ${toEur(await this.getBalance())}`;
+	}
+
+	/**
+	 * Returns the current portfolio.
+	 * @async
+	 * @returns {Promise&lt;Portfolio>} The portfolio.
+	 */
+	async getPortfolio() {
+		let portfolio = await this.degiro.getPortfolio({
+			type: PORTFOLIO_POSITIONS_TYPE_ENUM.ALL,
+			getProductDetails: true,
+		});
+		let productIds = portfolio.map(e => e.id);
+		let positions = await this.getProductsByIds(productIds);
+		portfolio = portfolio.map(e => {
+			return {
+				entry: positions[e.id],
+				...e
+			}
+		});
+		return new Portfolio(portfolio);
+	}
+
+	/**
+	 * Fetches the information for the products by the given ID.
+	 * @param {number[]} ids The IDs of the products to get the information from.
+	 * @async
+	 * @returns product information.
+	 */
+	async getProductsByIds(ids){
+		return this.degiro.getProductsByIds(ids);
+	}
+	
+	/**
+	 * Searches products in DEGIRO.
+	 * @param {string} searchOptions The search string.
+	 * @returns The products with the given search string.
+	 */
+	async searchProduct(searchOptions){
+		return await this.degiro.searchProduct(searchOptions) || [];
+	}
+}
+export default DeGiro;
 </code></pre>
         </article>
     </section>
