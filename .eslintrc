@@ -31,8 +31,7 @@
 					"FunctionExpression": false
 				}
 			}
-		],
-		"no-console": "off"
+		]
 	},
 	"env": {
 		"browser": false,
