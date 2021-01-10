@@ -15,6 +15,7 @@
 			"tab",
 			{"SwitchCase": 1}
 		],
+		"linebreak-style":["error","unix"],
 		"sort-imports": [
 			"error",
 			{
