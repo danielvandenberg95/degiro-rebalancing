@@ -10,20 +10,6 @@ class StdIn {
 		this.rl = undefined;
 	}
 
-	async open(){
-		this.rl = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-
-		this.rl._writeToOutput = (stringToWrite)=>{
-			if (this.rl.stdoutMuted)
-				this.rl.output.write("*");
-			else
-				this.rl.output.write(stringToWrite);
-		};
-	}
-
 	async close(){
 		this.rl?.close();
 		this.rl = undefined;
@@ -51,5 +37,20 @@ class StdIn {
 		this.isSecure = false;
 		return result;
 	}
+
+	async open(){
+		this.rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
+		this.rl._writeToOutput = (stringToWrite)=>{
+			if (this.rl.stdoutMuted)
+				this.rl.output.write("*");
+			else
+				this.rl.output.write(stringToWrite);
+		};
+	}
+	
 }
 export default StdIn;

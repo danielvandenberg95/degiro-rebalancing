@@ -7,10 +7,6 @@ class MockProvider {
 		this.data = {};
 	}
 
-	async open() {
-		this.isOpen = true;
-	}
-
 	async close() {
 		this.isOpen = false;
 	}
@@ -20,6 +16,10 @@ class MockProvider {
 			throw 'Call open first.';
 		}
 		return this.data[key];
+	}
+
+	async open() {
+		this.isOpen = true;
 	}
 
 	setData(key, value) {

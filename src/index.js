@@ -218,7 +218,6 @@ async function main() {
 				});
 		});
 
-
 	stdIn.close();
 	await newConsole.run();
 

@@ -6,10 +6,6 @@ import { LocalStorage as LS } from 'node-localstorage';
  * @extends DataProvider
  */
 class LocalStorage {
-	async open() {
-		this.localStorage = new LS('./storage');
-	}
-
 	async close() {
 		this.localStorage = undefined;
 	}
@@ -19,6 +15,10 @@ class LocalStorage {
 			throw 'Call open first.';
 		}
 		return this.localStorage.getItem(key);
+	}
+
+	async open() {
+		this.localStorage = new LS('./storage');
 	}
 
 	setData(key, value) {

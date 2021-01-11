@@ -15,38 +15,6 @@ class DeGiro {
 		this.dataProviderLoginCache = dataProviderLoginCache;
 	}
 
-	/**
-	 * Call to open both data providers, and establish a connection to degiro.
-	 * 
-	 * @async
-	 */
-	async open() {
-		await this.dataProviderLogin.open();
-		await this.dataProviderLoginCache.open();
-		if (await this.dataProviderLoginCache.getData("degiro.logincache")) {
-			this.degiro = new DeGiroAPI({
-				jsessionId: await this.dataProviderLoginCache.getData("degiro.logincache")
-			});
-			await this.degiro.login().catch((e) => { console.log(`Invalid login: ${e}`) });
-			if (this.degiro.isLogin()) {
-				return;
-			}
-		}
-
-		console.log("Session expired (or non-existing yet), re-login.");
-
-		this.degiro = new DeGiroAPI({
-			username: await this.dataProviderLogin.getData("Username"),
-			pwd: await this.dataProviderLogin.getDataSecure("Password"),
-			oneTimePassword: await this.dataProviderLogin.getData("OneTimePassword")
-		});
-		await this.degiro.login();
-		if (!this.degiro.isLogin()) {
-			throw "Could not login.";
-		}
-		this.dataProviderLoginCache.setData("degiro.logincache", this.degiro.getJSESSIONID());
-	}
-
 	/** 
 	 * Closes the connection to degiro and closes the dataproviders, freeing up system resources.
 	*/
@@ -103,6 +71,38 @@ class DeGiro {
 	 */
 	async getProductsByIds(ids){
 		return this.degiro.getProductsByIds(ids);
+	}
+
+	/**
+	 * Call to open both data providers, and establish a connection to degiro.
+	 * 
+	 * @async
+	 */
+	async open() {
+		await this.dataProviderLogin.open();
+		await this.dataProviderLoginCache.open();
+		if (await this.dataProviderLoginCache.getData("degiro.logincache")) {
+			this.degiro = new DeGiroAPI({
+				jsessionId: await this.dataProviderLoginCache.getData("degiro.logincache")
+			});
+			await this.degiro.login().catch((e) => { console.log(`Invalid login: ${e}`) });
+			if (this.degiro.isLogin()) {
+				return;
+			}
+		}
+
+		console.log("Session expired (or non-existing yet), re-login.");
+
+		this.degiro = new DeGiroAPI({
+			username: await this.dataProviderLogin.getData("Username"),
+			pwd: await this.dataProviderLogin.getDataSecure("Password"),
+			oneTimePassword: await this.dataProviderLogin.getData("OneTimePassword")
+		});
+		await this.degiro.login();
+		if (!this.degiro.isLogin()) {
+			throw "Could not login.";
+		}
+		this.dataProviderLoginCache.setData("degiro.logincache", this.degiro.getJSESSIONID());
 	}
 	
 	/**

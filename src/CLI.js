@@ -31,6 +31,15 @@ class CLI {
 	}
 
 	/**
+	 * Adds a line to be displayed in the interface.
+	 * @param {CLI#StringFunc | string | string[]} func_header Header function
+	 */
+	addHeaderLine(func_header) {
+		this.headerLines.push(func_header);
+		return this;
+	}
+
+	/**
 	 * Adds a submenu.
 	 * @param {string} title The title of the submenu. Shown when selecting and on top as a header line.
 	 */
@@ -48,15 +57,6 @@ class CLI {
 	 * @typedef {function} CLI#StringFunc
 	 * @returns {string[] | string}
 	 */
-
-	/**
-	 * Adds a line to be displayed in the interface.
-	 * @param {CLI#StringFunc | string | string[]} func_header Header function
-	 */
-	addHeaderLine(func_header) {
-		this.headerLines.push(func_header);
-		return this;
-	}
 
 	/**
 	 * Requests user input.
@@ -96,7 +96,7 @@ class CLI {
 	 * @param {any[]} options Array of options
 	 * @param {function(any):string} formatter Formatter for options
 	 */
-	async askUserSelection(title, options, formatter){
+	async askUserSelection(title, options, formatter) {
 		let selectCLI = new CLI(title);
 		return await new Promise((resolve) => {
 			options.forEach((option, index) => {
@@ -107,47 +107,6 @@ class CLI {
 			});
 			selectCLI.run();
 		});
-	}
-
-	/**
-	 * Tells the CLI that it should exit as soon as possible.
-	 */
-	setExiting(){
-		this.isExiting = true;
-	}
-
-	/**
-	 * Private render function.
-	 * Renders the current "screen" to the console.
-	 * 
-	 * @private
-	 * @async
-	 */
-	async #render() {
-		process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
-		process.stdout.write("\x1B[2J");
-		Console.clear();
-		let lines = 0
-		for (let e of this.headerLines) {
-			if (typeof (e) === "function") {
-				e = await e();
-			}
-			if (Array.isArray(e)) {
-				lines += e.length;
-				e.forEach(e => Console.log(e));
-			}
-			else {
-				lines++;
-				Console.log(e);
-			}
-		}
-		let indexes = [];
-		this.subMenus.forEach((obj, index) => {
-			indexes.push(lines);
-			lines++;
-			Console.log(`${index === 0 ? `→` : ` `} ${obj.title}`);
-		});
-		return indexes;
 	}
 
 	/**
@@ -169,18 +128,10 @@ class CLI {
 	}
 
 	/**
-	 * Returns a keypress.
-	 * @returns {Object} The key pressed.
+	 * Tells the CLI that it should exit as soon as possible.
 	 */
-	async #getKey() {
-		process.stdin.resume();
-		process.stdin.setEncoding('utf8');
-		return new Promise((resolve) => {
-			process.stdin.once('keypress', (str, key) => {
-				process.stdin.pause();
-				resolve(key);
-			});
-		});
+	setExiting() {
+		this.isExiting = true;
 	}
 
 	/**
@@ -249,5 +200,55 @@ class CLI {
 			}
 		}
 	}
+
+	/**
+	 * Private render function.
+	 * Renders the current "screen" to the console.
+	 * 
+	 * @private
+	 * @async
+	 */
+	async #render() {
+		process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+		process.stdout.write("\x1B[2J");
+		Console.clear();
+		let lines = 0
+		for (let e of this.headerLines) {
+			if (typeof (e) === "function") {
+				e = await e();
+			}
+			if (Array.isArray(e)) {
+				lines += e.length;
+				e.forEach(e => Console.log(e));
+			}
+			else {
+				lines++;
+				Console.log(e);
+			}
+		}
+		let indexes = [];
+		this.subMenus.forEach((obj, index) => {
+			indexes.push(lines);
+			lines++;
+			Console.log(`${index === 0 ? `→` : ` `} ${obj.title}`);
+		});
+		return indexes;
+	}
+
+	/**
+		 * Returns a keypress.
+		 * @returns {Object} The key pressed.
+		 */
+	async #getKey() {
+		process.stdin.resume();
+		process.stdin.setEncoding('utf8');
+		return new Promise((resolve) => {
+			process.stdin.once('keypress', (str, key) => {
+				process.stdin.pause();
+				resolve(key);
+			});
+		});
+	}
+
 }
 export default CLI;

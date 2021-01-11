@@ -7,10 +7,6 @@ class Env {
 		this.isOpen = false;
 	}
 
-	async open(){
-		this.isOpen = true;
-	}
-
 	async close(){
 		this.isOpen = false;
 	}
@@ -25,5 +21,10 @@ class Env {
 	async getDataSecure(key) {
 		return this.getData(key);
 	}
+
+	async open(){
+		this.isOpen = true;
+	}
+	
 }
 export default Env;

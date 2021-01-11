@@ -9,18 +9,72 @@
 			"configFile": "./babelrc"
 		}
 	},
+	"plugins": [
+		"sort-class-members"
+	],
 	"rules": {
 		"indent": [
 			"error",
 			"tab",
-			{"SwitchCase": 1}
+			{
+				"SwitchCase": 1
+			}
 		],
-		"linebreak-style":["error","unix"],
+		"linebreak-style": [
+			"error",
+			"unix"
+		],
 		"sort-imports": [
 			"error",
 			{
 				"ignoreCase": true
 			}
+		],
+		"sort-class-members/sort-class-members": [
+			"error",
+			{
+				"order": [
+					{
+						"group": "static-properties",
+						"sort": "alphabetical"
+					},
+					{
+						"group": "static-methods",
+						"sort": "alphabetical"
+					},
+					{
+						"group": "properties",
+						"sort": "alphabetical"
+					},
+					{
+						"group": "conventional-private-properties",
+						"sort": "alphabetical"
+					},
+					{
+						"name": "constructor"
+					},
+					{
+						"group": "methods",
+						"sort": "alphabetical"
+					},
+					{
+						"group": "conventional-private-methods",
+						"sort": "alphabetical"
+					}
+				],
+				"accessorPairPositioning": "getThenSet"
+			}
+		],
+		"no-multiple-empty-lines": [
+			"error",
+			{
+				"max": 1,
+				"maxEOF": 1
+			}
+		],
+		"lines-between-class-members": [
+			"error",
+			"always"
 		],
 		"require-jsdoc": [
 			"error",

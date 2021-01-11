@@ -24,7 +24,6 @@ dataProviderTypes.forEach((dataProviderType) => {
 			["open", "close", "getData"].forEach(hasFunction);
 		});
 
-
 		let getFunctionOpenTest = (functionName, hasToExist) => {
 			describe(functionName, () => {
 				let isExisting = typeof(dataProvider[functionName]) == "function";

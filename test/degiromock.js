@@ -5,14 +5,6 @@ import DeGiro from "../src/degiro";
  */
 export default class DeGiroMock extends DeGiro{
 
-	async open(){
-		await this.dataProviderLogin.open();
-		await this.dataProviderLogin.getData("Username");
-		await this.dataProviderLogin.getDataSecure("Password");
-		await this.dataProviderLogin.getData("OneTimePassword");
-		this.isOpen = true;
-	}
-
 	close(){
 		this.isOpen = false;
 	}
@@ -56,4 +48,13 @@ export default class DeGiroMock extends DeGiro{
 	isLoggedIn(){
 		return this.isOpen;
 	}
+
+	async open(){
+		await this.dataProviderLogin.open();
+		await this.dataProviderLogin.getData("Username");
+		await this.dataProviderLogin.getDataSecure("Password");
+		await this.dataProviderLogin.getData("OneTimePassword");
+		this.isOpen = true;
+	}
+	
 }
