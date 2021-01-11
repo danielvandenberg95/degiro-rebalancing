@@ -96,52 +96,86 @@
  * @extends DataProvider
  */
 class StdIn {
+	static rl;
+
+	/**
+	 * Constructor. Closes any potentially left open StdIn instances.
+	 */
 	constructor() {
 		this.isSecure = false;
-		this.rl = undefined;
+		if (StdIn.rl) {
+			StdIn.rl.close();
+		}
+		StdIn.rl = undefined;
 	}
 
-	async open(){
-		this.rl = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-
-		this.rl._writeToOutput = (stringToWrite)=>{
-			if (this.rl.stdoutMuted)
-				this.rl.output.write("*");
-			else
-				this.rl.output.write(stringToWrite);
-		};
+	/**
+	 * Closes the DataProvider neatly. Used for freeing up system resources.
+	 *
+	 * @async
+	 */
+	async close() {
+		StdIn.rl?.close();
+		StdIn.rl = undefined;
 	}
 
-	async close(){
-		this.rl?.close();
-		this.rl = undefined;
-	}
-
+	/**
+	 * Returns data from the given key.
+	 *
+	 * @async
+	 * @param {string} key The key associated with the data to get.
+	 * @returns {string} The value associated with the given key.
+	 */
 	async getData(sQuestion) {
-		if (!this.rl){
+		if (!StdIn.rl) {
 			throw 'Call open first.';
 		}
-		this.rl.stdoutMuted = false;
+		StdIn.rl.stdoutMuted = false;
 		let promise = new Promise((resolve) => {
-			this.rl.question(`${sQuestion}: `, (password)=>{
-				this.rl.stdoutMuted = false;
+			StdIn.rl.question(`${sQuestion}: `, (password) => {
+				StdIn.rl.stdoutMuted = false;
 				process.stdout.write("\n");
 				resolve(password);
 			});
 		});
-		this.rl.stdoutMuted = this.isSecure;
+		StdIn.rl.stdoutMuted = this.isSecure;
 		return promise;
 	}
 
-	async getDataSecure(sQuestion){
+	/**
+	 * Returns data from the given key. This data is retrieved securely.
+	 * To be used e.g. when requesting a password.
+	 *
+	 * @async
+	 * @param {string} key The key associated with the data to get.
+	 * @returns {string} The value associated with the given key.
+	 */
+	async getDataSecure(sQuestion) {
 		this.isSecure = true;
 		let result = this.getData(sQuestion);
 		this.isSecure = false;
 		return result;
 	}
+
+	/**
+	 * Opens the DataProvider, allowing to get and set data.
+	 *
+	 * @async
+	 */
+	async open() {
+		StdIn.rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
+
+		StdIn.rl._writeToOutput = (stringToWrite) => {
+			if (StdIn.rl.stdoutMuted)
+				StdIn.rl.output.write("*");
+			else
+				StdIn.rl.output.write(stringToWrite);
+		};
+	}
+
 }
 export default StdIn;
 </code></pre>

@@ -5,10 +5,17 @@ import DeGiro from "../src/degiro";
  */
 export default class DeGiroMock extends DeGiro{
 
+	/**
+	 * Mocks the close function of DeGiro.
+	 * @see DeGiro#close
+	 */
 	close(){
 		this.isOpen = false;
 	}
 
+	/**
+	 * Returns an example of account config data.
+	 */
 	getAccountConfig(){
 		if (!this.isOpen){
 			throw "Not logged in.";
@@ -45,10 +52,17 @@ export default class DeGiroMock extends DeGiro{
 		};
 	}
 
+	/**
+	 * Returns wether the user is logged in or not.
+	 * In this mock, this is assumed to be true when open is called.
+	 */
 	isLoggedIn(){
 		return this.isOpen;
 	}
 
+	/**
+	 * Opens the mock connection to DeGiro.
+	 */
 	async open(){
 		await this.dataProviderLogin.open();
 		await this.dataProviderLogin.getData("Username");

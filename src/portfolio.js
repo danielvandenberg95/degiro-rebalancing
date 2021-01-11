@@ -2,6 +2,10 @@
  * Class representing a portfolio on DEGIRO.
  */
 class Portfolio{
+	/**
+	 * Constructor.
+	 * @param {array[]} deGiroData Data as retrieved from DeGiro.
+	 */
 	constructor(deGiroData){
 		this.data = deGiroData;
 	}

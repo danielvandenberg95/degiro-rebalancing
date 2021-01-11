@@ -10,6 +10,11 @@ const DeGiroAPI = DeGiroTmp.default;
  * Class for interacting with DeGiro.
  */
 class DeGiro {
+	/**
+	 * Constructor.
+	 * @param {DataProvider} dataProviderLogin DataProvider to request the login credentials from.
+	 * @param {DataProvider} dataProviderLoginCache DataProvider to cache the auth token in.
+	 */
 	constructor(dataProviderLogin, dataProviderLoginCache) {
 		this.dataProviderLogin = dataProviderLogin;
 		this.dataProviderLoginCache = dataProviderLoginCache;
