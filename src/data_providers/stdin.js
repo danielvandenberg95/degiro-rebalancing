@@ -5,52 +5,57 @@ import readline from 'readline';
  * @extends DataProvider
  */
 class StdIn {
+	static rl;
+
 	constructor() {
 		this.isSecure = false;
-		this.rl = undefined;
+		if (StdIn.rl) {
+			StdIn.rl.close();
+		}
+		StdIn.rl = undefined;
 	}
 
-	async close(){
-		this.rl?.close();
-		this.rl = undefined;
+	async close() {
+		StdIn.rl?.close();
+		StdIn.rl = undefined;
 	}
 
 	async getData(sQuestion) {
-		if (!this.rl){
+		if (!StdIn.rl) {
 			throw 'Call open first.';
 		}
-		this.rl.stdoutMuted = false;
+		StdIn.rl.stdoutMuted = false;
 		let promise = new Promise((resolve) => {
-			this.rl.question(`${sQuestion}: `, (password)=>{
-				this.rl.stdoutMuted = false;
+			StdIn.rl.question(`${sQuestion}: `, (password) => {
+				StdIn.rl.stdoutMuted = false;
 				process.stdout.write("\n");
 				resolve(password);
 			});
 		});
-		this.rl.stdoutMuted = this.isSecure;
+		StdIn.rl.stdoutMuted = this.isSecure;
 		return promise;
 	}
 
-	async getDataSecure(sQuestion){
+	async getDataSecure(sQuestion) {
 		this.isSecure = true;
 		let result = this.getData(sQuestion);
 		this.isSecure = false;
 		return result;
 	}
 
-	async open(){
-		this.rl = readline.createInterface({
+	async open() {
+		StdIn.rl = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout
 		});
 
-		this.rl._writeToOutput = (stringToWrite)=>{
-			if (this.rl.stdoutMuted)
-				this.rl.output.write("*");
+		StdIn.rl._writeToOutput = (stringToWrite) => {
+			if (StdIn.rl.stdoutMuted)
+				StdIn.rl.output.write("*");
 			else
-				this.rl.output.write(stringToWrite);
+				StdIn.rl.output.write(stringToWrite);
 		};
 	}
-	
+
 }
 export default StdIn;
